@@ -4,3 +4,4 @@ pydantic
 chromadb
 python-dotenv
 requests
+hindsight-client==0.10.1
