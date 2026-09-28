@@ -1,0 +1,3 @@
+{"run_id":"RUN-003","pipeline":{"name":"api-deploy","provider":"github-actions","branch":"main","commit":"e4f5a6b"},
+ "status":"failed","stage":"deploy","timestamp":"2026-09-28T10:30:00Z",
+ "logs":{"raw":"KeyError: DATABASE_URL environment variable is not set","error":"KeyError: DATABASE_URL environment variable is not set"}}

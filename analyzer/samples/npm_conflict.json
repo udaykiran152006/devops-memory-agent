@@ -1,0 +1,3 @@
+{"run_id":"RUN-007","pipeline":{"name":"web-build","provider":"github-actions","branch":"main","commit":"7a8b9c0"},
+ "status":"failed","stage":"build","timestamp":"2026-09-28T10:30:00Z",
+ "logs":{"raw":"npm ERR! code ERESOLVE unable to resolve dependency tree","error":"npm ERR! code ERESOLVE unable to resolve dependency tree"}}
