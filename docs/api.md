@@ -1,1 +1,25 @@
+# API Contract
 
+## POST /api/analyze
+
+Used to analyze a pipeline failure.
+
+### Request
+
+```json
+{
+  "run_id": "RUN-001",
+  "pipeline": {
+    "name": "backend-ci",
+    "provider": "github-actions",
+    "branch": "main",
+    "commit": "abc123"
+  },
+  "status": "failed",
+  "stage": "test",
+  "timestamp": "2026-09-28T10:30:00Z",
+  "logs": {
+    "raw": "ModuleNotFoundError: No module named 'requests'",
+    "error": "ModuleNotFoundError: No module named 'requests'"
+  }
+}
