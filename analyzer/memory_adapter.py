@@ -1,19 +1,38 @@
-# TEMPORARY in-file memory so the analyzer runs on its own.
-# When Member 3 gives the Hindsight functions, replace the INSIDE of
-# retain() and recall() with their calls. Keep the function names.
-import json, os
-FILE = "memory.json"
+# Connects the analyzer to the real memory module built by Member 3
+# (backend/memory.py: store_failure, find_similar_failures, recall_from_hindsight).
+import json
+from memory import store_failure, find_similar_failures, recall_from_hindsight
 
-def _load():
-    return json.load(open(FILE)) if os.path.exists(FILE) else []
+
+def _describe(parsed):
+    """Turn a parsed error into one text line for memory search/storage."""
+    return (f"[{parsed['service']}] {parsed['error_type']} at stage "
+            f"{parsed['stage']}: {parsed['message']}")
+
 
 def retain(parsed, diagnosis):
-    data = _load()
-    data.append({"parsed": parsed, "diagnosis": diagnosis})
-    json.dump(data, open(FILE, "w"), indent=2)
+    """Save this failure and its diagnosis to ChromaDB + Hindsight."""
+    description = _describe(parsed)
+    fix = "; ".join(diagnosis.get("fix_steps", []))
+    store_failure(description, fix)
+
 
 def recall(parsed):
-    """Return past failures with the same error_type and service."""
-    return [d for d in _load()
-            if d["parsed"]["error_type"] == parsed["error_type"]
-            and d["parsed"]["service"] == parsed["service"]]
+    """Find similar past failures for this error, using ChromaDB (fast,
+    local) and falling back to Hindsight for extra long-term context."""
+    query = _describe(parsed)
+    similar = find_similar_failures(query, n_results=3)
+
+    hindsight_result = recall_from_hindsight(query)
+    if hindsight_result:
+        similar.append({"description": str(hindsight_result), "fix": ""})
+
+    out = []
+    for item in similar:
+        out.append({
+            "parsed": {"error_type": parsed["error_type"],
+                       "service": parsed["service"],
+                       "run_id": item.get("description", "")[:40]},
+            "diagnosis": {"fix_steps": [item.get("fix", "")] if item.get("fix") else []}
+        })
+    return out
